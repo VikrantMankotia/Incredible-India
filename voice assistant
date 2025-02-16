@@ -1,0 +1,736 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyO0a1WNC/GnVv+YjqDZhMel",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/VikrantMankotia/Incredible-India/blob/main/voice%20assistant\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "308d4ull_EFM",
+        "outputId": "3fd525ae-ab80-4a47-b2c4-052cb3fb74a1"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Collecting openai-whisper\n",
+            "  Downloading openai-whisper-20240930.tar.gz (800 kB)\n",
+            "\u001b[?25l     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/800.5 kB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\r\u001b[2K     \u001b[91m━━━━━━━━━━\u001b[0m\u001b[90m╺\u001b[0m\u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m204.8/800.5 kB\u001b[0m \u001b[31m6.0 MB/s\u001b[0m eta \u001b[36m0:00:01\u001b[0m\r\u001b[2K     \u001b[91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[91m╸\u001b[0m \u001b[32m798.7/800.5 kB\u001b[0m \u001b[31m13.3 MB/s\u001b[0m eta \u001b[36m0:00:01\u001b[0m\r\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m800.5/800.5 kB\u001b[0m \u001b[31m8.7 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25h  Installing build dependencies ... \u001b[?25l\u001b[?25hdone\n",
+            "  Getting requirements to build wheel ... \u001b[?25l\u001b[?25hdone\n",
+            "  Preparing metadata (pyproject.toml) ... \u001b[?25l\u001b[?25hdone\n",
+            "Requirement already satisfied: torch in /usr/local/lib/python3.11/dist-packages (2.5.1+cu124)\n",
+            "Collecting gtts\n",
+            "  Downloading gTTS-2.5.4-py3-none-any.whl.metadata (4.1 kB)\n",
+            "Collecting pydub\n",
+            "  Downloading pydub-0.25.1-py2.py3-none-any.whl.metadata (1.4 kB)\n",
+            "Requirement already satisfied: numba in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (0.61.0)\n",
+            "Requirement already satisfied: numpy in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (1.26.4)\n",
+            "Requirement already satisfied: tqdm in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (4.67.1)\n",
+            "Requirement already satisfied: more-itertools in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (10.6.0)\n",
+            "Collecting tiktoken (from openai-whisper)\n",
+            "  Downloading tiktoken-0.9.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.7 kB)\n",
+            "Requirement already satisfied: triton>=2.0.0 in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (3.1.0)\n",
+            "Requirement already satisfied: filelock in /usr/local/lib/python3.11/dist-packages (from torch) (3.17.0)\n",
+            "Requirement already satisfied: typing-extensions>=4.8.0 in /usr/local/lib/python3.11/dist-packages (from torch) (4.12.2)\n",
+            "Requirement already satisfied: networkx in /usr/local/lib/python3.11/dist-packages (from torch) (3.4.2)\n",
+            "Requirement already satisfied: jinja2 in /usr/local/lib/python3.11/dist-packages (from torch) (3.1.5)\n",
+            "Requirement already satisfied: fsspec in /usr/local/lib/python3.11/dist-packages (from torch) (2024.10.0)\n",
+            "Collecting nvidia-cuda-nvrtc-cu12==12.4.127 (from torch)\n",
+            "  Downloading nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)\n",
+            "Collecting nvidia-cuda-runtime-cu12==12.4.127 (from torch)\n",
+            "  Downloading nvidia_cuda_runtime_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)\n",
+            "Collecting nvidia-cuda-cupti-cu12==12.4.127 (from torch)\n",
+            "  Downloading nvidia_cuda_cupti_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)\n",
+            "Collecting nvidia-cudnn-cu12==9.1.0.70 (from torch)\n",
+            "  Downloading nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)\n",
+            "Collecting nvidia-cublas-cu12==12.4.5.8 (from torch)\n",
+            "  Downloading nvidia_cublas_cu12-12.4.5.8-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)\n",
+            "Collecting nvidia-cufft-cu12==11.2.1.3 (from torch)\n",
+            "  Downloading nvidia_cufft_cu12-11.2.1.3-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)\n",
+            "Collecting nvidia-curand-cu12==10.3.5.147 (from torch)\n",
+            "  Downloading nvidia_curand_cu12-10.3.5.147-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)\n",
+            "Collecting nvidia-cusolver-cu12==11.6.1.9 (from torch)\n",
+            "  Downloading nvidia_cusolver_cu12-11.6.1.9-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)\n",
+            "Collecting nvidia-cusparse-cu12==12.3.1.170 (from torch)\n",
+            "  Downloading nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)\n",
+            "Requirement already satisfied: nvidia-nccl-cu12==2.21.5 in /usr/local/lib/python3.11/dist-packages (from torch) (2.21.5)\n",
+            "Requirement already satisfied: nvidia-nvtx-cu12==12.4.127 in /usr/local/lib/python3.11/dist-packages (from torch) (12.4.127)\n",
+            "Collecting nvidia-nvjitlink-cu12==12.4.127 (from torch)\n",
+            "  Downloading nvidia_nvjitlink_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)\n",
+            "Requirement already satisfied: sympy==1.13.1 in /usr/local/lib/python3.11/dist-packages (from torch) (1.13.1)\n",
+            "Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.11/dist-packages (from sympy==1.13.1->torch) (1.3.0)\n",
+            "Requirement already satisfied: requests<3,>=2.27 in /usr/local/lib/python3.11/dist-packages (from gtts) (2.32.3)\n",
+            "Requirement already satisfied: click<8.2,>=7.1 in /usr/local/lib/python3.11/dist-packages (from gtts) (8.1.8)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2.27->gtts) (3.4.1)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2.27->gtts) (3.10)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2.27->gtts) (2.3.0)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2.27->gtts) (2025.1.31)\n",
+            "Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.11/dist-packages (from jinja2->torch) (3.0.2)\n",
+            "Requirement already satisfied: llvmlite<0.45,>=0.44.0dev0 in /usr/local/lib/python3.11/dist-packages (from numba->openai-whisper) (0.44.0)\n",
+            "Requirement already satisfied: regex>=2022.1.18 in /usr/local/lib/python3.11/dist-packages (from tiktoken->openai-whisper) (2024.11.6)\n",
+            "Downloading nvidia_cublas_cu12-12.4.5.8-py3-none-manylinux2014_x86_64.whl (363.4 MB)\n",
+            "\u001b[2K   \u001b[91m━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[90m╺\u001b[0m\u001b[90m━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m176.5/363.4 MB\u001b[0m \u001b[31m3.3 MB/s\u001b[0m eta \u001b[36m0:00:58\u001b[0m\n",
+            "\u001b[?25hDownloading nvidia_cuda_cupti_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (13.8 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m13.8/13.8 MB\u001b[0m \u001b[31m11.0 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (24.6 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m24.6/24.6 MB\u001b[0m \u001b[31m51.6 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading nvidia_cuda_runtime_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (883 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m883.7/883.7 kB\u001b[0m \u001b[31m29.9 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl (664.8 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m664.8/664.8 MB\u001b[0m \u001b[31m1.5 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading nvidia_cufft_cu12-11.2.1.3-py3-none-manylinux2014_x86_64.whl (211.5 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m211.5/211.5 MB\u001b[0m \u001b[31m5.9 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading nvidia_curand_cu12-10.3.5.147-py3-none-manylinux2014_x86_64.whl (56.3 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m56.3/56.3 MB\u001b[0m \u001b[31m9.7 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading nvidia_cusolver_cu12-11.6.1.9-py3-none-manylinux2014_x86_64.whl (127.9 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m127.9/127.9 MB\u001b[0m \u001b[31m7.4 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_x86_64.whl (207.5 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m207.5/207.5 MB\u001b[0m \u001b[31m5.4 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading nvidia_nvjitlink_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (21.1 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m21.1/21.1 MB\u001b[0m \u001b[31m48.5 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading gTTS-2.5.4-py3-none-any.whl (29 kB)\n",
+            "Downloading pydub-0.25.1-py2.py3-none-any.whl (32 kB)\n",
+            "Downloading tiktoken-0.9.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (1.2 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m1.2/1.2 MB\u001b[0m \u001b[31m31.2 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25h\u001b[31mERROR: THESE PACKAGES DO NOT MATCH THE HASHES FROM THE REQUIREMENTS FILE. If you have updated the package versions, please update the hashes. Otherwise, examine the package contents carefully; someone may have tampered with them.\n",
+            "    unknown package:\n",
+            "        Expected sha256 2fc8da60df463fdefa81e323eef2e36489e1c94335b5358bcb38360adf75ac9b\n",
+            "             Got        7663cfbbb184ac50daec4dedc0c5c0e2a6872429cc3b778a9f99ade63adcc3f2\n",
+            "\u001b[0m\u001b[31m\n",
+            "\u001b[0m"
+          ]
+        }
+      ],
+      "source": [
+        "!pip install openai-whisper torch gtts pydub\n"
+      ]
+    },
+    {
+      "source": [
+        "# In the same cell where you're using `whisper`, include this line before the import:\n",
+        "!pip install openai-whisper\n",
+        "\n",
+        "import whisper\n",
+        "\n",
+        "# Load Whisper model (small model for fast response)\n",
+        "model = whisper.load_model(\"small\")\n",
+        "\n",
+        "# Transcribe audio (Upload a sample file)\n",
+        "result = model.transcribe(\"/content/harvard.wav\")\n",
+        "print(\"You said:\", result[\"text\"])"
+      ],
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "9YWCT6P4_7QV",
+        "outputId": "bfa323ab-1c20-4818-e35d-df419b7f31c8"
+      },
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Collecting openai-whisper\n",
+            "  Using cached openai-whisper-20240930.tar.gz (800 kB)\n",
+            "  Installing build dependencies ... \u001b[?25l\u001b[?25hdone\n",
+            "  Getting requirements to build wheel ... \u001b[?25l\u001b[?25hdone\n",
+            "  Preparing metadata (pyproject.toml) ... \u001b[?25l\u001b[?25hdone\n",
+            "Requirement already satisfied: numba in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (0.61.0)\n",
+            "Requirement already satisfied: numpy in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (1.26.4)\n",
+            "Requirement already satisfied: torch in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (2.5.1+cu124)\n",
+            "Requirement already satisfied: tqdm in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (4.67.1)\n",
+            "Requirement already satisfied: more-itertools in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (10.6.0)\n",
+            "Collecting tiktoken (from openai-whisper)\n",
+            "  Using cached tiktoken-0.9.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.7 kB)\n",
+            "Requirement already satisfied: triton>=2.0.0 in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (3.1.0)\n",
+            "Requirement already satisfied: filelock in /usr/local/lib/python3.11/dist-packages (from triton>=2.0.0->openai-whisper) (3.17.0)\n",
+            "Requirement already satisfied: llvmlite<0.45,>=0.44.0dev0 in /usr/local/lib/python3.11/dist-packages (from numba->openai-whisper) (0.44.0)\n",
+            "Requirement already satisfied: regex>=2022.1.18 in /usr/local/lib/python3.11/dist-packages (from tiktoken->openai-whisper) (2024.11.6)\n",
+            "Requirement already satisfied: requests>=2.26.0 in /usr/local/lib/python3.11/dist-packages (from tiktoken->openai-whisper) (2.32.3)\n",
+            "Requirement already satisfied: typing-extensions>=4.8.0 in /usr/local/lib/python3.11/dist-packages (from torch->openai-whisper) (4.12.2)\n",
+            "Requirement already satisfied: networkx in /usr/local/lib/python3.11/dist-packages (from torch->openai-whisper) (3.4.2)\n",
+            "Requirement already satisfied: jinja2 in /usr/local/lib/python3.11/dist-packages (from torch->openai-whisper) (3.1.5)\n",
+            "Requirement already satisfied: fsspec in /usr/local/lib/python3.11/dist-packages (from torch->openai-whisper) (2024.10.0)\n",
+            "Collecting nvidia-cuda-nvrtc-cu12==12.4.127 (from torch->openai-whisper)\n",
+            "  Using cached nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)\n",
+            "Collecting nvidia-cuda-runtime-cu12==12.4.127 (from torch->openai-whisper)\n",
+            "  Using cached nvidia_cuda_runtime_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)\n",
+            "Collecting nvidia-cuda-cupti-cu12==12.4.127 (from torch->openai-whisper)\n",
+            "  Using cached nvidia_cuda_cupti_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)\n",
+            "Collecting nvidia-cudnn-cu12==9.1.0.70 (from torch->openai-whisper)\n",
+            "  Using cached nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)\n",
+            "Collecting nvidia-cublas-cu12==12.4.5.8 (from torch->openai-whisper)\n",
+            "  Using cached nvidia_cublas_cu12-12.4.5.8-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)\n",
+            "Collecting nvidia-cufft-cu12==11.2.1.3 (from torch->openai-whisper)\n",
+            "  Using cached nvidia_cufft_cu12-11.2.1.3-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)\n",
+            "Collecting nvidia-curand-cu12==10.3.5.147 (from torch->openai-whisper)\n",
+            "  Using cached nvidia_curand_cu12-10.3.5.147-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)\n",
+            "Collecting nvidia-cusolver-cu12==11.6.1.9 (from torch->openai-whisper)\n",
+            "  Using cached nvidia_cusolver_cu12-11.6.1.9-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)\n",
+            "Collecting nvidia-cusparse-cu12==12.3.1.170 (from torch->openai-whisper)\n",
+            "  Using cached nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)\n",
+            "Requirement already satisfied: nvidia-nccl-cu12==2.21.5 in /usr/local/lib/python3.11/dist-packages (from torch->openai-whisper) (2.21.5)\n",
+            "Requirement already satisfied: nvidia-nvtx-cu12==12.4.127 in /usr/local/lib/python3.11/dist-packages (from torch->openai-whisper) (12.4.127)\n",
+            "Collecting nvidia-nvjitlink-cu12==12.4.127 (from torch->openai-whisper)\n",
+            "  Using cached nvidia_nvjitlink_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)\n",
+            "Requirement already satisfied: sympy==1.13.1 in /usr/local/lib/python3.11/dist-packages (from torch->openai-whisper) (1.13.1)\n",
+            "Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.11/dist-packages (from sympy==1.13.1->torch->openai-whisper) (1.3.0)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.11/dist-packages (from requests>=2.26.0->tiktoken->openai-whisper) (3.4.1)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.11/dist-packages (from requests>=2.26.0->tiktoken->openai-whisper) (3.10)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests>=2.26.0->tiktoken->openai-whisper) (2.3.0)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.11/dist-packages (from requests>=2.26.0->tiktoken->openai-whisper) (2025.1.31)\n",
+            "Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.11/dist-packages (from jinja2->torch->openai-whisper) (3.0.2)\n",
+            "Using cached tiktoken-0.9.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (1.2 MB)\n",
+            "Downloading nvidia_cublas_cu12-12.4.5.8-py3-none-manylinux2014_x86_64.whl (363.4 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m363.4/363.4 MB\u001b[0m \u001b[31m4.4 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hUsing cached nvidia_cuda_cupti_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (13.8 MB)\n",
+            "Using cached nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (24.6 MB)\n",
+            "Using cached nvidia_cuda_runtime_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (883 kB)\n",
+            "Using cached nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl (664.8 MB)\n",
+            "Using cached nvidia_cufft_cu12-11.2.1.3-py3-none-manylinux2014_x86_64.whl (211.5 MB)\n",
+            "Using cached nvidia_curand_cu12-10.3.5.147-py3-none-manylinux2014_x86_64.whl (56.3 MB)\n",
+            "Using cached nvidia_cusolver_cu12-11.6.1.9-py3-none-manylinux2014_x86_64.whl (127.9 MB)\n",
+            "Using cached nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_x86_64.whl (207.5 MB)\n",
+            "Using cached nvidia_nvjitlink_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (21.1 MB)\n",
+            "Building wheels for collected packages: openai-whisper\n",
+            "  Building wheel for openai-whisper (pyproject.toml) ... \u001b[?25l\u001b[?25hdone\n",
+            "  Created wheel for openai-whisper: filename=openai_whisper-20240930-py3-none-any.whl size=803373 sha256=5873e937351fe502cce77d2a01776b8fd52103c9fcac5039fab7364f2e093a63\n",
+            "  Stored in directory: /root/.cache/pip/wheels/2f/f2/ce/6eb23db4091d026238ce76703bd66da60b969d70bcc81d5d3a\n",
+            "Successfully built openai-whisper\n",
+            "Installing collected packages: nvidia-nvjitlink-cu12, nvidia-curand-cu12, nvidia-cufft-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, tiktoken, nvidia-cusparse-cu12, nvidia-cudnn-cu12, nvidia-cusolver-cu12, openai-whisper\n",
+            "  Attempting uninstall: nvidia-nvjitlink-cu12\n",
+            "    Found existing installation: nvidia-nvjitlink-cu12 12.5.82\n",
+            "    Uninstalling nvidia-nvjitlink-cu12-12.5.82:\n",
+            "      Successfully uninstalled nvidia-nvjitlink-cu12-12.5.82\n",
+            "  Attempting uninstall: nvidia-curand-cu12\n",
+            "    Found existing installation: nvidia-curand-cu12 10.3.6.82\n",
+            "    Uninstalling nvidia-curand-cu12-10.3.6.82:\n",
+            "      Successfully uninstalled nvidia-curand-cu12-10.3.6.82\n",
+            "  Attempting uninstall: nvidia-cufft-cu12\n",
+            "    Found existing installation: nvidia-cufft-cu12 11.2.3.61\n",
+            "    Uninstalling nvidia-cufft-cu12-11.2.3.61:\n",
+            "      Successfully uninstalled nvidia-cufft-cu12-11.2.3.61\n",
+            "  Attempting uninstall: nvidia-cuda-runtime-cu12\n",
+            "    Found existing installation: nvidia-cuda-runtime-cu12 12.5.82\n",
+            "    Uninstalling nvidia-cuda-runtime-cu12-12.5.82:\n",
+            "      Successfully uninstalled nvidia-cuda-runtime-cu12-12.5.82\n",
+            "  Attempting uninstall: nvidia-cuda-nvrtc-cu12\n",
+            "    Found existing installation: nvidia-cuda-nvrtc-cu12 12.5.82\n",
+            "    Uninstalling nvidia-cuda-nvrtc-cu12-12.5.82:\n",
+            "      Successfully uninstalled nvidia-cuda-nvrtc-cu12-12.5.82\n",
+            "  Attempting uninstall: nvidia-cuda-cupti-cu12\n",
+            "    Found existing installation: nvidia-cuda-cupti-cu12 12.5.82\n",
+            "    Uninstalling nvidia-cuda-cupti-cu12-12.5.82:\n",
+            "      Successfully uninstalled nvidia-cuda-cupti-cu12-12.5.82\n",
+            "  Attempting uninstall: nvidia-cublas-cu12\n",
+            "    Found existing installation: nvidia-cublas-cu12 12.5.3.2\n",
+            "    Uninstalling nvidia-cublas-cu12-12.5.3.2:\n",
+            "      Successfully uninstalled nvidia-cublas-cu12-12.5.3.2\n",
+            "  Attempting uninstall: nvidia-cusparse-cu12\n",
+            "    Found existing installation: nvidia-cusparse-cu12 12.5.1.3\n",
+            "    Uninstalling nvidia-cusparse-cu12-12.5.1.3:\n",
+            "      Successfully uninstalled nvidia-cusparse-cu12-12.5.1.3\n",
+            "  Attempting uninstall: nvidia-cudnn-cu12\n",
+            "    Found existing installation: nvidia-cudnn-cu12 9.3.0.75\n",
+            "    Uninstalling nvidia-cudnn-cu12-9.3.0.75:\n",
+            "      Successfully uninstalled nvidia-cudnn-cu12-9.3.0.75\n",
+            "  Attempting uninstall: nvidia-cusolver-cu12\n",
+            "    Found existing installation: nvidia-cusolver-cu12 11.6.3.83\n",
+            "    Uninstalling nvidia-cusolver-cu12-11.6.3.83:\n",
+            "      Successfully uninstalled nvidia-cusolver-cu12-11.6.3.83\n",
+            "Successfully installed nvidia-cublas-cu12-12.4.5.8 nvidia-cuda-cupti-cu12-12.4.127 nvidia-cuda-nvrtc-cu12-12.4.127 nvidia-cuda-runtime-cu12-12.4.127 nvidia-cudnn-cu12-9.1.0.70 nvidia-cufft-cu12-11.2.1.3 nvidia-curand-cu12-10.3.5.147 nvidia-cusolver-cu12-11.6.1.9 nvidia-cusparse-cu12-12.3.1.170 nvidia-nvjitlink-cu12-12.4.127 openai-whisper-20240930 tiktoken-0.9.0\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "100%|███████████████████████████████████████| 461M/461M [00:05<00:00, 86.3MiB/s]\n",
+            "/usr/local/lib/python3.11/dist-packages/whisper/__init__.py:150: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.\n",
+            "  checkpoint = torch.load(fp, map_location=device)\n",
+            "/usr/local/lib/python3.11/dist-packages/whisper/transcribe.py:126: UserWarning: FP16 is not supported on CPU; using FP32 instead\n",
+            "  warnings.warn(\"FP16 is not supported on CPU; using FP32 instead\")\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "You said:  The stale smell of old beer lingers. It takes heat to bring out the odor. A cold dip restores health and zest. A salt pickle tastes fine with ham. Tacos al pastor are my favorite. A zestful food is the hot cross bun.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "source": [
+        "# In the same cell where you're using `gTTS`, ensure it's installed first:\n",
+        "!pip install gtts\n",
+        "\n",
+        "from gtts import gTTS\n",
+        "import IPython.display as display\n",
+        "\n",
+        "text = \"Hello! How can I assist you today?\"\n",
+        "tts = gTTS(text=text, lang='en')\n",
+        "tts.save(\"response.mp3\")\n",
+        "\n",
+        "# Play the audio\n",
+        "display.Audio(\"response.mp3\", autoplay=True)"
+      ],
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 286
+        },
+        "id": "NILdQWR-Apf4",
+        "outputId": "5fceb661-0b4a-487a-f2e2-bfe149e86eb6"
+      },
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Collecting gtts\n",
+            "  Using cached gTTS-2.5.4-py3-none-any.whl.metadata (4.1 kB)\n",
+            "Requirement already satisfied: requests<3,>=2.27 in /usr/local/lib/python3.11/dist-packages (from gtts) (2.32.3)\n",
+            "Requirement already satisfied: click<8.2,>=7.1 in /usr/local/lib/python3.11/dist-packages (from gtts) (8.1.8)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2.27->gtts) (3.4.1)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2.27->gtts) (3.10)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2.27->gtts) (2.3.0)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2.27->gtts) (2025.1.31)\n",
+            "Using cached gTTS-2.5.4-py3-none-any.whl (29 kB)\n",
+            "Installing collected packages: gtts\n",
+            "Successfully installed gtts-2.5.4\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<IPython.lib.display.Audio object>"
+            ],
+            "text/html": [
+              "\n",
+              "                <audio  controls=\"controls\" autoplay=\"autoplay\">\n",
+              "                    <source src=\"data:audio/mpeg;base64,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\" type=\"audio/mpeg\" />\n",
+              "                    Your browser does not support the audio element.\n",
+              "                </audio>\n",
+              "              "
+            ]
+          },
+          "metadata": {},
+          "execution_count": 5
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install openai-whisper torch gtts pydub speechrecognition\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "5h71jrkEBG0J",
+        "outputId": "5291f92f-71b2-4fbb-fb00-2822703dd3ce"
+      },
+      "execution_count": 6,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Requirement already satisfied: openai-whisper in /usr/local/lib/python3.11/dist-packages (20240930)\n",
+            "Requirement already satisfied: torch in /usr/local/lib/python3.11/dist-packages (2.5.1+cu124)\n",
+            "Requirement already satisfied: gtts in /usr/local/lib/python3.11/dist-packages (2.5.4)\n",
+            "Collecting pydub\n",
+            "  Using cached pydub-0.25.1-py2.py3-none-any.whl.metadata (1.4 kB)\n",
+            "Collecting speechrecognition\n",
+            "  Downloading SpeechRecognition-3.14.1-py3-none-any.whl.metadata (31 kB)\n",
+            "Requirement already satisfied: numba in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (0.61.0)\n",
+            "Requirement already satisfied: numpy in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (1.26.4)\n",
+            "Requirement already satisfied: tqdm in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (4.67.1)\n",
+            "Requirement already satisfied: more-itertools in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (10.6.0)\n",
+            "Requirement already satisfied: tiktoken in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (0.9.0)\n",
+            "Requirement already satisfied: triton>=2.0.0 in /usr/local/lib/python3.11/dist-packages (from openai-whisper) (3.1.0)\n",
+            "Requirement already satisfied: filelock in /usr/local/lib/python3.11/dist-packages (from torch) (3.17.0)\n",
+            "Requirement already satisfied: typing-extensions>=4.8.0 in /usr/local/lib/python3.11/dist-packages (from torch) (4.12.2)\n",
+            "Requirement already satisfied: networkx in /usr/local/lib/python3.11/dist-packages (from torch) (3.4.2)\n",
+            "Requirement already satisfied: jinja2 in /usr/local/lib/python3.11/dist-packages (from torch) (3.1.5)\n",
+            "Requirement already satisfied: fsspec in /usr/local/lib/python3.11/dist-packages (from torch) (2024.10.0)\n",
+            "Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.4.127 in /usr/local/lib/python3.11/dist-packages (from torch) (12.4.127)\n",
+            "Requirement already satisfied: nvidia-cuda-runtime-cu12==12.4.127 in /usr/local/lib/python3.11/dist-packages (from torch) (12.4.127)\n",
+            "Requirement already satisfied: nvidia-cuda-cupti-cu12==12.4.127 in /usr/local/lib/python3.11/dist-packages (from torch) (12.4.127)\n",
+            "Requirement already satisfied: nvidia-cudnn-cu12==9.1.0.70 in /usr/local/lib/python3.11/dist-packages (from torch) (9.1.0.70)\n",
+            "Requirement already satisfied: nvidia-cublas-cu12==12.4.5.8 in /usr/local/lib/python3.11/dist-packages (from torch) (12.4.5.8)\n",
+            "Requirement already satisfied: nvidia-cufft-cu12==11.2.1.3 in /usr/local/lib/python3.11/dist-packages (from torch) (11.2.1.3)\n",
+            "Requirement already satisfied: nvidia-curand-cu12==10.3.5.147 in /usr/local/lib/python3.11/dist-packages (from torch) (10.3.5.147)\n",
+            "Requirement already satisfied: nvidia-cusolver-cu12==11.6.1.9 in /usr/local/lib/python3.11/dist-packages (from torch) (11.6.1.9)\n",
+            "Requirement already satisfied: nvidia-cusparse-cu12==12.3.1.170 in /usr/local/lib/python3.11/dist-packages (from torch) (12.3.1.170)\n",
+            "Requirement already satisfied: nvidia-nccl-cu12==2.21.5 in /usr/local/lib/python3.11/dist-packages (from torch) (2.21.5)\n",
+            "Requirement already satisfied: nvidia-nvtx-cu12==12.4.127 in /usr/local/lib/python3.11/dist-packages (from torch) (12.4.127)\n",
+            "Requirement already satisfied: nvidia-nvjitlink-cu12==12.4.127 in /usr/local/lib/python3.11/dist-packages (from torch) (12.4.127)\n",
+            "Requirement already satisfied: sympy==1.13.1 in /usr/local/lib/python3.11/dist-packages (from torch) (1.13.1)\n",
+            "Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.11/dist-packages (from sympy==1.13.1->torch) (1.3.0)\n",
+            "Requirement already satisfied: requests<3,>=2.27 in /usr/local/lib/python3.11/dist-packages (from gtts) (2.32.3)\n",
+            "Requirement already satisfied: click<8.2,>=7.1 in /usr/local/lib/python3.11/dist-packages (from gtts) (8.1.8)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2.27->gtts) (3.4.1)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2.27->gtts) (3.10)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2.27->gtts) (2.3.0)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2.27->gtts) (2025.1.31)\n",
+            "Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.11/dist-packages (from jinja2->torch) (3.0.2)\n",
+            "Requirement already satisfied: llvmlite<0.45,>=0.44.0dev0 in /usr/local/lib/python3.11/dist-packages (from numba->openai-whisper) (0.44.0)\n",
+            "Requirement already satisfied: regex>=2022.1.18 in /usr/local/lib/python3.11/dist-packages (from tiktoken->openai-whisper) (2024.11.6)\n",
+            "Using cached pydub-0.25.1-py2.py3-none-any.whl (32 kB)\n",
+            "Downloading SpeechRecognition-3.14.1-py3-none-any.whl (32.9 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m32.9/32.9 MB\u001b[0m \u001b[31m29.9 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hInstalling collected packages: pydub, speechrecognition\n",
+            "Successfully installed pydub-0.25.1 speechrecognition-3.14.1\n"
+          ]
+        }
+      ]
+    },
+    {
+      "source": [
+        "from google.colab import files\n",
+        "\n",
+        "uploaded = files.upload()  # Remove the path argument\n",
+        "audio_file = list(uploaded.keys())[0]  # Get the filename\n",
+        "print(f\"Uploaded: {audio_file}\")"
+      ],
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 90
+        },
+        "id": "I9HIw0VHDWym",
+        "outputId": "a073ea01-1114-4d4a-8318-cb1d638b3b58"
+      },
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<IPython.core.display.HTML object>"
+            ],
+            "text/html": [
+              "\n",
+              "     <input type=\"file\" id=\"files-a400982a-4ee4-44ac-96b6-a824c5abdf4b\" name=\"files[]\" multiple disabled\n",
+              "        style=\"border:none\" />\n",
+              "     <output id=\"result-a400982a-4ee4-44ac-96b6-a824c5abdf4b\">\n",
+              "      Upload widget is only available when the cell has been executed in the\n",
+              "      current browser session. Please rerun this cell to enable.\n",
+              "      </output>\n",
+              "      <script>// Copyright 2017 Google LLC\n",
+              "//\n",
+              "// Licensed under the Apache License, Version 2.0 (the \"License\");\n",
+              "// you may not use this file except in compliance with the License.\n",
+              "// You may obtain a copy of the License at\n",
+              "//\n",
+              "//      http://www.apache.org/licenses/LICENSE-2.0\n",
+              "//\n",
+              "// Unless required by applicable law or agreed to in writing, software\n",
+              "// distributed under the License is distributed on an \"AS IS\" BASIS,\n",
+              "// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n",
+              "// See the License for the specific language governing permissions and\n",
+              "// limitations under the License.\n",
+              "\n",
+              "/**\n",
+              " * @fileoverview Helpers for google.colab Python module.\n",
+              " */\n",
+              "(function(scope) {\n",
+              "function span(text, styleAttributes = {}) {\n",
+              "  const element = document.createElement('span');\n",
+              "  element.textContent = text;\n",
+              "  for (const key of Object.keys(styleAttributes)) {\n",
+              "    element.style[key] = styleAttributes[key];\n",
+              "  }\n",
+              "  return element;\n",
+              "}\n",
+              "\n",
+              "// Max number of bytes which will be uploaded at a time.\n",
+              "const MAX_PAYLOAD_SIZE = 100 * 1024;\n",
+              "\n",
+              "function _uploadFiles(inputId, outputId) {\n",
+              "  const steps = uploadFilesStep(inputId, outputId);\n",
+              "  const outputElement = document.getElementById(outputId);\n",
+              "  // Cache steps on the outputElement to make it available for the next call\n",
+              "  // to uploadFilesContinue from Python.\n",
+              "  outputElement.steps = steps;\n",
+              "\n",
+              "  return _uploadFilesContinue(outputId);\n",
+              "}\n",
+              "\n",
+              "// This is roughly an async generator (not supported in the browser yet),\n",
+              "// where there are multiple asynchronous steps and the Python side is going\n",
+              "// to poll for completion of each step.\n",
+              "// This uses a Promise to block the python side on completion of each step,\n",
+              "// then passes the result of the previous step as the input to the next step.\n",
+              "function _uploadFilesContinue(outputId) {\n",
+              "  const outputElement = document.getElementById(outputId);\n",
+              "  const steps = outputElement.steps;\n",
+              "\n",
+              "  const next = steps.next(outputElement.lastPromiseValue);\n",
+              "  return Promise.resolve(next.value.promise).then((value) => {\n",
+              "    // Cache the last promise value to make it available to the next\n",
+              "    // step of the generator.\n",
+              "    outputElement.lastPromiseValue = value;\n",
+              "    return next.value.response;\n",
+              "  });\n",
+              "}\n",
+              "\n",
+              "/**\n",
+              " * Generator function which is called between each async step of the upload\n",
+              " * process.\n",
+              " * @param {string} inputId Element ID of the input file picker element.\n",
+              " * @param {string} outputId Element ID of the output display.\n",
+              " * @return {!Iterable<!Object>} Iterable of next steps.\n",
+              " */\n",
+              "function* uploadFilesStep(inputId, outputId) {\n",
+              "  const inputElement = document.getElementById(inputId);\n",
+              "  inputElement.disabled = false;\n",
+              "\n",
+              "  const outputElement = document.getElementById(outputId);\n",
+              "  outputElement.innerHTML = '';\n",
+              "\n",
+              "  const pickedPromise = new Promise((resolve) => {\n",
+              "    inputElement.addEventListener('change', (e) => {\n",
+              "      resolve(e.target.files);\n",
+              "    });\n",
+              "  });\n",
+              "\n",
+              "  const cancel = document.createElement('button');\n",
+              "  inputElement.parentElement.appendChild(cancel);\n",
+              "  cancel.textContent = 'Cancel upload';\n",
+              "  const cancelPromise = new Promise((resolve) => {\n",
+              "    cancel.onclick = () => {\n",
+              "      resolve(null);\n",
+              "    };\n",
+              "  });\n",
+              "\n",
+              "  // Wait for the user to pick the files.\n",
+              "  const files = yield {\n",
+              "    promise: Promise.race([pickedPromise, cancelPromise]),\n",
+              "    response: {\n",
+              "      action: 'starting',\n",
+              "    }\n",
+              "  };\n",
+              "\n",
+              "  cancel.remove();\n",
+              "\n",
+              "  // Disable the input element since further picks are not allowed.\n",
+              "  inputElement.disabled = true;\n",
+              "\n",
+              "  if (!files) {\n",
+              "    return {\n",
+              "      response: {\n",
+              "        action: 'complete',\n",
+              "      }\n",
+              "    };\n",
+              "  }\n",
+              "\n",
+              "  for (const file of files) {\n",
+              "    const li = document.createElement('li');\n",
+              "    li.append(span(file.name, {fontWeight: 'bold'}));\n",
+              "    li.append(span(\n",
+              "        `(${file.type || 'n/a'}) - ${file.size} bytes, ` +\n",
+              "        `last modified: ${\n",
+              "            file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() :\n",
+              "                                    'n/a'} - `));\n",
+              "    const percent = span('0% done');\n",
+              "    li.appendChild(percent);\n",
+              "\n",
+              "    outputElement.appendChild(li);\n",
+              "\n",
+              "    const fileDataPromise = new Promise((resolve) => {\n",
+              "      const reader = new FileReader();\n",
+              "      reader.onload = (e) => {\n",
+              "        resolve(e.target.result);\n",
+              "      };\n",
+              "      reader.readAsArrayBuffer(file);\n",
+              "    });\n",
+              "    // Wait for the data to be ready.\n",
+              "    let fileData = yield {\n",
+              "      promise: fileDataPromise,\n",
+              "      response: {\n",
+              "        action: 'continue',\n",
+              "      }\n",
+              "    };\n",
+              "\n",
+              "    // Use a chunked sending to avoid message size limits. See b/62115660.\n",
+              "    let position = 0;\n",
+              "    do {\n",
+              "      const length = Math.min(fileData.byteLength - position, MAX_PAYLOAD_SIZE);\n",
+              "      const chunk = new Uint8Array(fileData, position, length);\n",
+              "      position += length;\n",
+              "\n",
+              "      const base64 = btoa(String.fromCharCode.apply(null, chunk));\n",
+              "      yield {\n",
+              "        response: {\n",
+              "          action: 'append',\n",
+              "          file: file.name,\n",
+              "          data: base64,\n",
+              "        },\n",
+              "      };\n",
+              "\n",
+              "      let percentDone = fileData.byteLength === 0 ?\n",
+              "          100 :\n",
+              "          Math.round((position / fileData.byteLength) * 100);\n",
+              "      percent.textContent = `${percentDone}% done`;\n",
+              "\n",
+              "    } while (position < fileData.byteLength);\n",
+              "  }\n",
+              "\n",
+              "  // All done.\n",
+              "  yield {\n",
+              "    response: {\n",
+              "      action: 'complete',\n",
+              "    }\n",
+              "  };\n",
+              "}\n",
+              "\n",
+              "scope.google = scope.google || {};\n",
+              "scope.google.colab = scope.google.colab || {};\n",
+              "scope.google.colab._files = {\n",
+              "  _uploadFiles,\n",
+              "  _uploadFilesContinue,\n",
+              "};\n",
+              "})(self);\n",
+              "</script> "
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Saving Recording.m4a to Recording (1).m4a\n",
+            "Uploaded: Recording (1).m4a\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import whisper\n",
+        "\n",
+        "model = whisper.load_model(\"small\")  # Load a small model for fast processing\n",
+        "result = model.transcribe(audio_file)\n",
+        "user_text = result[\"text\"]\n",
+        "\n",
+        "print(\"You said:\", user_text)\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "rGoeJFmIDe54",
+        "outputId": "2b2ec0ae-3619-4e4e-960f-36ee5cb8b5fa"
+      },
+      "execution_count": 9,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "/usr/local/lib/python3.11/dist-packages/whisper/__init__.py:150: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.\n",
+            "  checkpoint = torch.load(fp, map_location=device)\n",
+            "/usr/local/lib/python3.11/dist-packages/whisper/transcribe.py:126: UserWarning: FP16 is not supported on CPU; using FP32 instead\n",
+            "  warnings.warn(\"FP16 is not supported on CPU; using FP32 instead\")\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "You said:  Hey Mac, how you doing?\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from gtts import gTTS\n",
+        "import IPython.display as display\n",
+        "\n",
+        "# Use AI-generated response (if GPT-4 is used) OR type a predefined response\n",
+        "text_to_speak = ai_response if 'ai_response' in locals() else \"Hello! How can I help you?\"\n",
+        "\n",
+        "# Convert text to speech\n",
+        "tts = gTTS(text=text_to_speak, lang=\"en\")\n",
+        "tts.save(\"response.mp3\")\n",
+        "\n",
+        "# Play the generated voice response\n",
+        "display.Audio(\"response.mp3\", autoplay=True)\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 76
+        },
+        "id": "wT132kdOHuLu",
+        "outputId": "6a63c7e3-869a-4739-a011-481c39d817bb"
+      },
+      "execution_count": 19,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<IPython.lib.display.Audio object>"
+            ],
+            "text/html": [
+              "\n",
+              "                <audio  controls=\"controls\" autoplay=\"autoplay\">\n",
+              "                    <source src=\"data:audio/mpeg;base64,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\" type=\"audio/mpeg\" />\n",
+              "                    Your browser does not support the audio element.\n",
+              "                </audio>\n",
+              "              "
+            ]
+          },
+          "metadata": {},
+          "execution_count": 19
+        }
+      ]
+    }
+  ]
+}
